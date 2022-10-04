@@ -28,15 +28,13 @@ else ()
     MESSAGE(STATUS "Unsupported system!")
 endif ()
 
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
 # 项目设置
 project(ch32v307-ninja C CXX ASM)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 
 # 编译参数 一般不用改
-add_compile_options(-march=rv32imac -mabi=ilp32 -mcmodel=medany -msmall-data-limit=8 -mno-save-restore -std=gnu99)
+add_compile_options(-march=rv32imacxw -mabi=ilp32 -mcmodel=medany -msmall-data-limit=8 -mno-save-restore)
 add_compile_options(-fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common)
 
 # 编译等级
@@ -59,7 +57,7 @@ file(GLOB_RECURSE SOURCES
                 "APP/*.c"
                 "Core/core_riscv.c" 
                 "Debug/debug.c"
-                "Peripheral/SRC/*.c" 
+                "Peripheral/src/*.c" 
                 "Startup/startup_ch32v30x_D8C.S"
                 )
 
@@ -82,7 +80,10 @@ target_link_libraries(${PROJECT_NAME}.elf printfloat)
 # 输出hex和bin
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
+set(LST_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.lst)
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
         COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
+        COMMAND ${CMAKE_OBJDUMP} --all-headers --demangle --disassemble $<TARGET_FILE:${PROJECT_NAME}.elf> > ${LST_FILE}
+        COMMAND ${SIZE} --format=berkeley $<TARGET_FILE:${PROJECT_NAME}.elf>
 )
