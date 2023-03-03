@@ -63,7 +63,9 @@ file(GLOB_RECURSE SOURCES
 
 # 链接参数
 set(LINKER_SCRIPT  ${CMAKE_SOURCE_DIR}/Ld/Link.ld)
-add_link_options(-nostartfiles 
+add_link_options(
+                -march=rv32imafc -mabi=ilp32f
+	            -nostartfiles 
                 -Xlinker --gc-sections  
                 -Wl,--print-memory-usage
                 -Wl,-Map,${PROJECT_NAME}.map 
